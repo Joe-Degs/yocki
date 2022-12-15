@@ -10,7 +10,7 @@ type Hello struct{}
 
 func (Hello) Routes() []*server.Route {
 	return []*server.Route{
-		&server.Route{
+		{
 			Path:    "",
 			Methods: []string{"GET"},
 			HandlerFunc: func(w http.ResponseWriter, r *http.Request) {

@@ -1,0 +1,16 @@
+title = "yocki server config template"
+
+listener_address = ":8080"
+
+[certs]
+cert_file = ""
+key_file = ""
+
+[vault]
+address = "http://localhost:8200"
+agent_address = ""
+custom_client = false
+
+[vault.certs]
+cert_file = ""
+key_file = ""

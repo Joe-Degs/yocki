@@ -1,11 +1,17 @@
 package server
 
 import (
+	"context"
+	"errors"
 	"net/http"
 	"net/url"
+	"time"
 
+	"github.com/Joe-Degs/yocki/internal/config"
 	"github.com/gorilla/mux"
 )
+
+// var config *config.Config
 
 // Route encapsulates a relative path to a resource in the server. It also handles
 // access management of the route it defines.
@@ -38,10 +44,14 @@ type Server struct {
 	services []Servicer
 }
 
-func NewServer(addr string) *Server {
+func NewServer(config config.Config) *Server {
 	srv := &Server{
 		Server: &http.Server{
-			Addr: addr,
+			Addr:              config.Address,
+			ReadTimeout:       1 * time.Second,
+			WriteTimeout:      1 * time.Second,
+			IdleTimeout:       30 * time.Second,
+			ReadHeaderTimeout: 2 * time.Second,
 		},
 		router: mux.NewRouter(),
 	}
@@ -49,9 +59,9 @@ func NewServer(addr string) *Server {
 	return srv
 }
 
-// InitRoutes takes a router interface and registers it on the server as a path
-// for the access of some resources.
-func (l *Server) InitRoutes(s Servicer) error {
+// InitService takes a servicer and initializes it and registers it to start
+// serving requests on the server.
+func (l *Server) InitService(s Servicer) error {
 	if err := l.registerRoutes(s.Version(), s.Routes()); err != nil {
 		return err
 	}
@@ -67,4 +77,21 @@ func (l *Server) registerRoutes(version string, routes []*Route) error {
 		l.router.HandleFunc(versionedEndpoint, r.HandlerFunc).Methods(r.Methods...)
 	}
 	return nil
+}
+
+// Start opens the server up for incoming remote connections and servicing of requests.
+func (l *Server) Start() error {
+	if err := l.ListenAndServe(); err != nil {
+		if errors.Is(err, http.ErrServerClosed) {
+			<-time.After(2 * time.Second)
+			return nil
+		}
+		return err
+	}
+	return nil
+}
+
+// Close cleans up and shuts down the http server
+func (l *Server) Close() error {
+	return l.Server.Shutdown(context.TODO())
 }

@@ -1,4 +1,4 @@
-package api
+package jsondata
 
 import ylog "github.com/Joe-Degs/yocki/server/log"
 

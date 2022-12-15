@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	. "github.com/Joe-Degs/yocki/api"
+	. "github.com/Joe-Degs/yocki/api/logservice/json"
 	srv "github.com/Joe-Degs/yocki/server"
 	ylog "github.com/Joe-Degs/yocki/server/log"
 )
